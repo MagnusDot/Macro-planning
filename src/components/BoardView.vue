@@ -1,8 +1,17 @@
 <template>
-  <main id="planning-capture" class="min-w-0 min-h-0 flex flex-col h-full">
+  <main
+    id="planning-capture"
+    :class="planning.screenshotMode
+      ? 'flex flex-col'
+      : 'min-w-0 min-h-0 flex flex-col h-full'"
+  >
     <Card
-      class="flex-1 min-h-0 flex flex-col overflow-hidden"
-      :class="{ 'rounded-none border-0 shadow-none': planning.screenshotMode }"
+      :class="[
+        'flex flex-col',
+        planning.screenshotMode
+          ? 'rounded-none border-0 shadow-none overflow-visible'
+          : 'flex-1 min-h-0 overflow-hidden',
+      ]"
     >
       <!-- ── Top bar ─────────────────────────────── -->
       <div
@@ -35,16 +44,18 @@
       </div>
 
       <!-- ── Timeline ───────────────────────────── -->
-      <div
-        class="flex-1 min-h-0"
-        :class="planning.screenshotMode ? 'overflow-visible h-auto' : 'overflow-hidden'"
-      >
-        <div :class="planning.screenshotMode ? 'overflow-visible' : 'h-full overflow-auto'">
+      <div :class="planning.screenshotMode ? '' : 'flex-1 min-h-0 overflow-hidden'">
+        <div :class="planning.screenshotMode ? '' : 'h-full overflow-auto'">
           <div
+            data-timeline-grid
             :style="{
               ...planning.boardStyle,
               display: 'grid',
               minWidth: 'max(100%, 960px)',
+              // In screenshot mode, expand to the true column sum so offsetWidth
+              // reflects the real content width (rows overflow the grid container
+              // by default, which html-to-image cannot capture).
+              width: planning.screenshotMode ? 'max-content' : undefined,
             }"
           >
             <!-- Header row -->

@@ -272,22 +272,62 @@ export function usePlanningState() {
 
   // ── Export ─────────────────────────────────────────────────────────────────
   async function saveAsPng() {
+    // Enable screenshot mode so the grid gets width:max-content and we can
+    // measure the true column sum from offsetWidth.
     screenshotMode.value = true;
     await nextTick();
-    await nextTick();
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    const gridEl = document.querySelector("[data-timeline-grid]");
+    if (!gridEl) { screenshotMode.value = false; return; }
+
+    const W = gridEl.offsetWidth;   // true content width (max-content resolved)
+    const H = gridEl.offsetHeight;
+
+    // Clone the grid and render it in an off-screen fixed container.
+    // This breaks the element free from all viewport-width parent constraints,
+    // giving html-to-image a clean element with the correct dimensions.
+    const wrapper = document.createElement("div");
+    Object.assign(wrapper.style, {
+      position: "fixed",
+      left:     `-${W + 200}px`,   // completely off-screen
+      top:      "0px",
+      width:    `${W}px`,
+      height:   `${H}px`,
+      overflow: "visible",
+      background: "#ffffff",
+      zIndex:   "-9999",
+    });
+
+    const clone = gridEl.cloneNode(true);
+    // Replace max-content with concrete pixels so layout is unambiguous.
+    clone.style.width    = `${W}px`;
+    clone.style.minWidth = `${W}px`;
+
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
+
+    // Give the browser one full frame to lay out the clone.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    const pixelRatio = Math.min(2, Math.max(0.5, 3840 / W));
+
     try {
-      const el = document.getElementById("planning-capture");
-      if (!el) return;
-      const url = await toPng(el, {
-        cacheBust: true, pixelRatio: 2, backgroundColor: "#ffffff",
-        skipFonts: true, width: el.scrollWidth, height: el.scrollHeight,
-        style: { overflow: "visible", fontFamily: "Inter, system-ui, sans-serif" },
+      const url = await toPng(clone, {
+        cacheBust: true,
+        pixelRatio,
+        backgroundColor: "#ffffff",
+        skipFonts: true,
+        width: W,
+        height: H,
+        style: { fontFamily: "Inter, system-ui, sans-serif" },
       });
       Object.assign(document.createElement("a"), {
         download: `${projectName.value || "macro-planning"}.png`,
         href: url,
       }).click();
     } finally {
+      document.body.removeChild(wrapper);
       screenshotMode.value = false;
     }
   }
@@ -301,8 +341,11 @@ export function usePlanningState() {
   // Clamp timeline length on change.
   watch(timelineLength, () => { timelineLength.value = safeTimelineLength.value; });
 
-  // Sync body class for screenshot mode (CSS hooks).
-  watch(screenshotMode, val => document.body.classList.toggle("screenshot-mode", val));
+  // Sync body class for screenshot mode + prevent scroll while rendering.
+  watch(screenshotMode, val => {
+    document.body.classList.toggle("screenshot-mode", val);
+    document.body.style.overflow = val ? "hidden" : "";
+  });
 
   // Auto-save project data on any field change.
   watch([projectName, clientName, startMonth, timelineLength, density, timeUnit], _persist);
