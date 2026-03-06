@@ -200,18 +200,17 @@ export function usePlanningState() {
     await nextTick();
 
     try {
-      const board = document.querySelector(".planning-board");
+      const board = document.querySelector("#planning-capture");
       if (!board) return;
 
       const dataUrl = await toPng(board, {
         cacheBust: true,
         pixelRatio: 2,
         backgroundColor: "#ffffff",
+        skipFonts: true,
         width: board.scrollWidth,
         height: board.scrollHeight,
-        style: {
-          overflow: "visible",
-        },
+        style: { overflow: "visible", fontFamily: "Inter, system-ui, sans-serif" },
       });
 
       const link = document.createElement("a");
