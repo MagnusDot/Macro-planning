@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Macro Planning</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="control-panel" id="controlPanel">
+        <div class="panel-card panel-intro">
+          <p class="eyebrow">Appel d'offres</p>
+          <h1>Macro planning</h1>
+          <p class="panel-copy">
+            Renseigne les grandes phases, ajuste la duree et bascule en mode screenshot.
+          </p>
+        </div>
+
+        <div class="panel-card">
+          <label>
+            <span>Nom du projet</span>
+            <input id="projectName" type="text" value="Refonte du programme de transformation" />
+          </label>
+          <label>
+            <span>Client</span>
+            <input id="clientName" type="text" value="Groupement territorial" />
+          </label>
+          <div class="field-row">
+            <label>
+              <span>Debut</span>
+              <input id="startMonth" type="month" value="2026-04" />
+            </label>
+            <label>
+              <span>Nb de mois</span>
+              <input id="timelineLength" type="number" min="3" max="24" value="12" />
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="section-title">
+            <h2>Phases</h2>
+            <button id="addPhaseButton" class="ghost-button" type="button">Ajouter</button>
+          </div>
+          <div id="phaseList" class="phase-list"></div>
+        </div>
+
+        <div class="panel-card action-card">
+          <button id="screenshotToggle" class="primary-button" type="button">Mode screenshot</button>
+          <button id="printButton" class="secondary-button" type="button">Imprimer / PDF</button>
+          <button id="resetButton" class="secondary-button" type="button">Recharger l'exemple</button>
+          <p class="hint">
+            En mode screenshot, les panneaux d'edition disparaissent pour laisser un cadrage propre.
+          </p>
+        </div>
+      </aside>
+
+      <main class="preview-shell">
+        <section class="planning-board" id="planningBoard">
+          <div class="board-backdrop"></div>
+
+          <header class="board-header">
+            <div>
+              <p class="eyebrow">Planning directeur</p>
+              <h2 id="boardProjectName">Refonte du programme de transformation</h2>
+            </div>
+            <div class="board-meta">
+              <div>
+                <span>Client</span>
+                <strong id="boardClientName">Groupement territorial</strong>
+              </div>
+              <div>
+                <span>Horizon</span>
+                <strong id="boardDuration">12 mois</strong>
+              </div>
+            </div>
+          </header>
+
+          <section class="summary-strip">
+            <article>
+              <span>Phases</span>
+              <strong id="phaseCount">5</strong>
+            </article>
+            <article>
+              <span>Mobilisation</span>
+              <strong>Equipe projet + gouvernance</strong>
+            </article>
+            <article>
+              <span>Livrable cle</span>
+              <strong>Feuille de route priorisee</strong>
+            </article>
+          </section>
+
+          <section class="timeline-card">
+            <div class="timeline-grid" id="timelineGrid"></div>
+            <section class="phase-legend is-hidden" id="phaseLegend" aria-label="Legende des phases"></section>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <template id="phaseItemTemplate">
+      <article class="phase-item">
+        <div class="phase-item-top">
+          <button class="drag-handle" type="button" aria-label="Deplacer la phase" title="Deplacer la phase">⋮⋮</button>
+          <label>
+            <span>Intitule</span>
+            <input class="phase-name" type="text" />
+          </label>
+          <button class="delete-button" type="button">Suppr.</button>
+        </div>
+        <div class="field-row">
+          <label>
+            <span>Debut</span>
+            <input class="phase-start" type="number" min="1" />
+          </label>
+          <label>
+            <span>Duree</span>
+            <input class="phase-duration" type="number" min="1" />
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            <span>Responsable</span>
+            <input class="phase-owner" type="text" />
+          </label>
+          <label>
+            <span>Couleur</span>
+            <input class="phase-color" type="color" />
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
