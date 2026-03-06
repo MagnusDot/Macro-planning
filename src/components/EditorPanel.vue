@@ -12,6 +12,13 @@
       </CardHeader>
     </Card>
 
+    <!-- Projets -->
+    <Card>
+      <CardContent class="pt-4 pb-3">
+        <ProjectSwitcher :state="state" />
+      </CardContent>
+    </Card>
+
     <!-- Contexte projet -->
     <Card>
       <CardHeader class="pb-3">
@@ -128,6 +135,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input }           from "@/components/ui/input";
 import { Label }           from "@/components/ui/label";
 import { Separator }       from "@/components/ui/separator";
+import ProjectSwitcher     from "@/components/ProjectSwitcher.vue";
 
 defineProps({
   state: { type: Object, required: true },
