@@ -272,43 +272,38 @@ export function usePlanningState() {
 
   // ── Export ─────────────────────────────────────────────────────────────────
   async function saveAsPng() {
-    // Enable screenshot mode so the grid gets width:max-content and we can
-    // measure the true column sum from offsetWidth.
-    screenshotMode.value = true;
-    await nextTick();
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
     const gridEl = document.querySelector("[data-timeline-grid]");
-    if (!gridEl) { screenshotMode.value = false; return; }
+    if (!gridEl) return;
 
-    const W = gridEl.offsetWidth;   // true content width (max-content resolved)
-    const H = gridEl.offsetHeight;
-
-    // Clone the grid and render it in an off-screen fixed container.
-    // This breaks the element free from all viewport-width parent constraints,
-    // giving html-to-image a clean element with the correct dimensions.
+    // Place a clone in an off-screen fixed container with width:max-content so
+    // columns expand to their natural sum without any viewport constraint.
     const wrapper = document.createElement("div");
     Object.assign(wrapper.style, {
-      position: "fixed",
-      left:     `-${W + 200}px`,   // completely off-screen
-      top:      "0px",
-      width:    `${W}px`,
-      height:   `${H}px`,
-      overflow: "visible",
+      position:   "fixed",
+      top:        "0",
+      left:       "-99999px",
+      overflow:   "visible",
       background: "#ffffff",
-      zIndex:   "-9999",
+      zIndex:     "-9999",
     });
 
     const clone = gridEl.cloneNode(true);
-    // Replace max-content with concrete pixels so layout is unambiguous.
-    clone.style.width    = `${W}px`;
-    clone.style.minWidth = `${W}px`;
-
+    clone.style.width    = "max-content";
+    clone.style.minWidth = "0";
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
 
-    // Give the browser one full frame to lay out the clone.
+    // Let the browser reflow the clone at its natural size.
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    const W = clone.offsetWidth;
+    const H = clone.offsetHeight;
+
+    // Lock to pixels so getBoundingClientRect is unambiguous during capture.
+    clone.style.width    = `${W}px`;
+    clone.style.minWidth = `${W}px`;
+
+    await new Promise(r => requestAnimationFrame(r));
 
     const pixelRatio = Math.min(2, Math.max(0.5, 3840 / W));
 
@@ -328,7 +323,6 @@ export function usePlanningState() {
       }).click();
     } finally {
       document.body.removeChild(wrapper);
-      screenshotMode.value = false;
     }
   }
 

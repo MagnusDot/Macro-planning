@@ -1,14 +1,12 @@
 <template>
-  <div :class="['min-h-screen', planning.screenshotMode ? 'bg-white' : 'bg-[hsl(210_20%_98%)]']">
+  <div class="min-h-screen bg-[hsl(210_20%_98%)]">
     <div
-      v-if="!planning.screenshotMode"
       class="grid h-screen gap-3 p-3"
       style="grid-template-columns: 280px minmax(0,1fr)"
     >
       <EditorPanel />
       <BoardView />
     </div>
-    <BoardView v-else />
     <PhasesModal v-if="!planning.screenshotMode" />
   </div>
 </template>

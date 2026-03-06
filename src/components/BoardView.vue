@@ -1,16 +1,9 @@
 <template>
-  <main
-    id="planning-capture"
-    :class="planning.screenshotMode
-      ? 'flex flex-col'
-      : 'min-w-0 min-h-0 flex flex-col h-full'"
-  >
+  <main id="planning-capture" class="min-w-0 min-h-0 flex flex-col h-full">
     <Card
       :class="[
-        'flex flex-col',
-        planning.screenshotMode
-          ? 'rounded-none border-0 shadow-none overflow-visible'
-          : 'flex-1 min-h-0 overflow-hidden',
+        'flex-1 min-h-0 flex flex-col overflow-hidden',
+        planning.screenshotMode ? 'rounded-none border-0 shadow-none' : '',
       ]"
     >
       <!-- ── Top bar ─────────────────────────────── -->
@@ -44,30 +37,22 @@
       </div>
 
       <!-- ── Timeline ───────────────────────────── -->
-      <div :class="planning.screenshotMode ? '' : 'flex-1 min-h-0 overflow-hidden'">
-        <div :class="planning.screenshotMode ? '' : 'h-full overflow-auto'">
+      <div class="flex-1 min-h-0 overflow-hidden">
+        <div class="h-full overflow-auto">
           <div
             data-timeline-grid
             :style="{
               ...planning.boardStyle,
               display: 'grid',
               minWidth: 'max(100%, 960px)',
-              // In screenshot mode, expand to the true column sum so offsetWidth
-              // reflects the real content width (rows overflow the grid container
-              // by default, which html-to-image cannot capture).
-              width: planning.screenshotMode ? 'max-content' : undefined,
             }"
           >
             <!-- Header row -->
             <div
-              class="grid border-b"
-              :class="planning.screenshotMode ? 'bg-[hsl(210_20%_98%)]' : 'bg-muted/40 sticky top-0 z-10'"
+              class="grid border-b bg-muted/40 sticky top-0 z-10"
               :style="colStyle"
             >
-              <div
-                class="px-4 py-3 border-r flex items-center"
-                :class="planning.screenshotMode ? 'bg-[hsl(210_20%_98%)]' : 'sticky left-0 z-10 bg-muted/40'"
-              >
+              <div class="px-4 py-3 border-r flex items-center sticky left-0 z-10 bg-muted/40">
                 <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Phase</span>
               </div>
               <div
@@ -86,15 +71,10 @@
               class="grid border-b last:border-b-0 hover:bg-muted/20 transition-colors"
               :style="{ ...colStyle, minHeight: 'var(--row-height, 84px)' }"
             >
-              <!-- Name cell -->
-              <div
-                class="px-4 py-3 border-r flex items-center bg-background"
-                :class="planning.screenshotMode ? '' : 'sticky left-0 z-[2]'"
-              >
+              <div class="px-4 py-3 border-r flex items-center bg-background sticky left-0 z-[2]">
                 <span class="text-sm font-medium leading-tight">{{ phase.name }}</span>
               </div>
 
-              <!-- Column cells -->
               <div
                 v-for="col in planning.monthLabels"
                 :key="col.key"
