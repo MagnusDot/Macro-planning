@@ -17,6 +17,7 @@ const defaultState = {
   startMonth: "2026-04",
   timelineLength: 12,
   density: "balanced",
+  timeUnit: "month",
   screenshotMode: false,
   phases: defaultPhases,
 };
@@ -51,6 +52,7 @@ function sanitizeState(raw) {
     startMonth: typeof raw?.startMonth === "string" ? raw.startMonth : base.startMonth,
     timelineLength: Math.min(24, Math.max(3, Number(raw?.timelineLength) || base.timelineLength)),
     density: ["compact", "balanced", "comfortable"].includes(raw?.density) ? raw.density : base.density,
+    timeUnit: ["month", "sprint"].includes(raw?.timeUnit) ? raw.timeUnit : base.timeUnit,
     screenshotMode: Boolean(raw?.screenshotMode),
     phases,
   };
@@ -73,6 +75,7 @@ export function usePlanningState() {
   const startMonth = ref(initial.startMonth);
   const timelineLength = ref(initial.timelineLength);
   const density = ref(initial.density);
+  const timeUnit = ref(initial.timeUnit);
   const screenshotMode = ref(initial.screenshotMode);
   const phases = ref(initial.phases);
 
@@ -85,6 +88,14 @@ export function usePlanningState() {
   const safeTimelineLength = computed(() => Math.min(24, Math.max(3, Number(timelineLength.value) || 12)));
 
   const monthLabels = computed(() => {
+    if (timeUnit.value === "sprint") {
+      return Array.from({ length: safeTimelineLength.value }, (_, i) => ({
+        index: i + 1,
+        label: `S${i + 1}`,
+        key: `sprint-${i + 1}`,
+      }));
+    }
+
     const [year, month] = (startMonth.value || defaultState.startMonth).split("-").map(Number);
     const cursor = new Date(year, (month || 1) - 1, 1);
 
@@ -124,7 +135,11 @@ export function usePlanningState() {
     };
   });
 
-  const timelineStartLabel = computed(() => monthLabels.value[0]?.label || "");
+  const timelineStartLabel = computed(() =>
+    timeUnit.value === "sprint" ? null : (monthLabels.value[0]?.label || "")
+  );
+
+  const columnUnit = computed(() => timeUnit.value === "sprint" ? "sprint" : "mois");
 
   const keyDeliverable = computed(() => {
     const lastPhase = normalizedPhases.value[normalizedPhases.value.length - 1];
@@ -142,7 +157,7 @@ export function usePlanningState() {
 
     return [
       { label: "Charge max", value: `${peakLoad} phases en parallele` },
-      { label: "Atterrissage", value: `M${Math.min(endMonth, safeTimelineLength.value)}` },
+      { label: "Atterrissage", value: timeUnit.value === "sprint" ? `S${Math.min(endMonth, safeTimelineLength.value)}` : `M${Math.min(endMonth, safeTimelineLength.value)}` },
       { label: "Lecture", value: density.value === "compact" ? "Sans scroll inutile" : "Vue detaillee" },
     ];
   });
@@ -154,6 +169,7 @@ export function usePlanningState() {
       startMonth: startMonth.value,
       timelineLength: safeTimelineLength.value,
       density: density.value,
+      timeUnit: timeUnit.value,
       screenshotMode: screenshotMode.value,
       phases: phases.value.map((phase, index) => sanitizePhase(phase, phase.id || index + 1)),
     };
@@ -167,6 +183,7 @@ export function usePlanningState() {
     startMonth.value = defaults.startMonth;
     timelineLength.value = defaults.timelineLength;
     density.value = defaults.density;
+    timeUnit.value = defaults.timeUnit;
     screenshotMode.value = defaults.screenshotMode;
     phases.value = defaults.phases;
   }
@@ -236,7 +253,7 @@ export function usePlanningState() {
   }
 
   watch(
-    [projectName, clientName, startMonth, timelineLength, density, screenshotMode],
+    [projectName, clientName, startMonth, timelineLength, density, timeUnit, screenshotMode],
     () => {
       timelineLength.value = safeTimelineLength.value;
       document.body.classList.toggle("screenshot-mode", Boolean(screenshotMode.value));
@@ -268,6 +285,8 @@ export function usePlanningState() {
     timelineLength,
     density,
     densityOptions,
+    timeUnit,
+    columnUnit,
     screenshotMode,
     phases,
     safeTimelineLength,

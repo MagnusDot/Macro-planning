@@ -27,14 +27,45 @@
           <Label>Client</Label>
           <Input v-model="state.clientName.value" placeholder="Nom du client" />
         </div>
+        <!-- Unité de temps -->
+        <div class="grid gap-1.5">
+          <Label>Unité de temps</Label>
+          <div class="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
+            <button
+              type="button"
+              :class="[
+                'rounded-md px-3 py-1.5 text-xs font-medium transition-all',
+                state.timeUnit.value === 'month'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              ]"
+              @click="state.timeUnit.value = 'month'"
+            >
+              <CalendarIcon class="inline h-3 w-3 mr-1" />Mois
+            </button>
+            <button
+              type="button"
+              :class="[
+                'rounded-md px-3 py-1.5 text-xs font-medium transition-all',
+                state.timeUnit.value === 'sprint'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              ]"
+              @click="state.timeUnit.value = 'sprint'"
+            >
+              <ZapIcon class="inline h-3 w-3 mr-1" />Sprints
+            </button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-2">
-          <div class="grid gap-1.5">
+          <div v-if="state.timeUnit.value === 'month'" class="grid gap-1.5">
             <Label>Début</Label>
             <Input v-model="state.startMonth.value" type="month" />
           </div>
-          <div class="grid gap-1.5">
-            <Label>Nb de mois</Label>
-            <Input v-model.number="state.timelineLength.value" type="number" min="3" max="24" />
+          <div class="grid gap-1.5" :class="state.timeUnit.value === 'sprint' ? 'col-span-2' : ''">
+            <Label>{{ state.timeUnit.value === 'sprint' ? 'Nb de sprints' : 'Nb de mois' }}</Label>
+            <Input v-model.number="state.timelineLength.value" type="number" min="3" max="52" />
           </div>
         </div>
       </CardContent>
@@ -91,7 +122,7 @@
 </template>
 
 <script setup>
-import { DownloadIcon } from "lucide-vue-next";
+import { DownloadIcon, CalendarIcon, ZapIcon } from "lucide-vue-next";
 import { Button }          from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input }           from "@/components/ui/input";

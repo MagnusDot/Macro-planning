@@ -16,9 +16,9 @@
             <span class="font-medium">{{ state.clientName.value }}</span>
           </div>
           <div class="h-8 flex items-center gap-1.5 rounded-md border px-3 text-sm">
-            <span class="text-muted-foreground">{{ state.safeTimelineLength.value }} mois</span>
+            <span class="text-muted-foreground">{{ state.safeTimelineLength.value }} {{ state.columnUnit.value }}</span>
           </div>
-          <div class="h-8 flex items-center gap-1.5 rounded-md border px-3 text-sm">
+          <div v-if="state.timeUnit.value === 'month' && state.timelineStartLabel.value" class="h-8 flex items-center gap-1.5 rounded-md border px-3 text-sm">
             <span class="text-muted-foreground">Début ·</span>
             <span class="font-medium">{{ state.timelineStartLabel.value }}</span>
           </div>

@@ -62,11 +62,11 @@
           <!-- Fields -->
           <div class="grid grid-cols-2 gap-2">
             <div class="grid gap-1">
-              <Label class="text-xs">Début</Label>
+              <Label class="text-xs">{{ state.timeUnit.value === 'sprint' ? 'Sprint début' : 'Mois début' }}</Label>
               <Input v-model.number="phase.start" type="number" min="1" :max="state.safeTimelineLength.value" class="h-8 text-sm" />
             </div>
             <div class="grid gap-1">
-              <Label class="text-xs">Durée</Label>
+              <Label class="text-xs">{{ state.timeUnit.value === 'sprint' ? 'Nb sprints' : 'Durée (mois)' }}</Label>
               <Input v-model.number="phase.duration" type="number" min="1" :max="state.safeTimelineLength.value" class="h-8 text-sm" />
             </div>
           </div>
