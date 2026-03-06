@@ -10,16 +10,16 @@
     >
       <div class="flex items-center gap-2">
         <span class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Phases</span>
-        <Badge variant="secondary">{{ state.phases.value.length }}</Badge>
+        <Badge variant="secondary">{{ planning.phases.length }}</Badge>
       </div>
       <div class="flex items-center gap-1.5" @click.stop>
-        <Button v-if="isOpen" size="sm" variant="outline" @click="state.addPhase">
+        <Button v-if="isOpen" size="sm" variant="outline" @click="planning.addPhase">
           <PlusIcon class="h-3.5 w-3.5 mr-1" />
           Ajouter
         </Button>
         <Button size="icon" variant="ghost" class="h-7 w-7" @click="isOpen = !isOpen">
           <ChevronDownIcon v-if="isOpen" class="h-4 w-4" />
-          <ChevronUpIcon v-else class="h-4 w-4" />
+          <ChevronUpIcon   v-else        class="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -30,47 +30,46 @@
     <Transition name="modal-body">
       <div v-if="isOpen" class="flex-1 overflow-y-auto p-3 grid gap-2 min-h-0">
         <div
-          v-for="(phase, index) in state.phases.value"
+          v-for="(phase, index) in planning.phases"
           :key="phase.id"
           class="rounded-lg border bg-muted/40 p-3 grid gap-2"
         >
-          <!-- Top row -->
+          <!-- Top row: index + name + reorder + delete -->
           <div class="flex items-center gap-2">
             <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-border text-xs font-bold text-muted-foreground">
               {{ index + 1 }}
             </span>
-            <div class="flex-1 grid gap-1">
-              <Input
-                v-model="phase.name"
-                placeholder="Nom de la phase"
-                class="h-8 text-sm"
-              />
-            </div>
+            <Input v-model="phase.name" placeholder="Nom de la phase" class="h-8 text-sm flex-1" />
             <div class="flex gap-1">
-              <Button size="icon" variant="ghost" class="h-7 w-7" :disabled="index === 0" @click="state.movePhase(index, -1)">
+              <Button size="icon" variant="ghost" class="h-7 w-7" :disabled="index === 0" @click="planning.movePhase(index, -1)">
                 <ChevronUpIcon class="h-3.5 w-3.5" />
               </Button>
-              <Button size="icon" variant="ghost" class="h-7 w-7" :disabled="index === state.phases.value.length - 1" @click="state.movePhase(index, 1)">
+              <Button size="icon" variant="ghost" class="h-7 w-7" :disabled="index === planning.phases.length - 1" @click="planning.movePhase(index, 1)">
                 <ChevronDownIcon class="h-3.5 w-3.5" />
               </Button>
-              <Button size="icon" variant="ghost" class="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" @click="state.removePhase(index)">
+              <Button
+                size="icon" variant="ghost"
+                class="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                @click="planning.removePhase(index)"
+              >
                 <XIcon class="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
 
-          <!-- Fields -->
+          <!-- Start + Duration -->
           <div class="grid grid-cols-2 gap-2">
             <div class="grid gap-1">
-              <Label class="text-xs">{{ state.timeUnit.value === 'sprint' ? 'Sprint début' : 'Mois début' }}</Label>
-              <Input v-model.number="phase.start" type="number" min="1" :max="state.safeTimelineLength.value" class="h-8 text-sm" />
+              <Label class="text-xs">{{ planning.timeUnit === "sprint" ? "Sprint début" : "Mois début" }}</Label>
+              <Input v-model.number="phase.start" type="number" min="1" :max="planning.safeTimelineLength" class="h-8 text-sm" />
             </div>
             <div class="grid gap-1">
-              <Label class="text-xs">{{ state.timeUnit.value === 'sprint' ? 'Nb sprints' : 'Durée (mois)' }}</Label>
-              <Input v-model.number="phase.duration" type="number" min="1" :max="state.safeTimelineLength.value" class="h-8 text-sm" />
+              <Label class="text-xs">{{ planning.timeUnit === "sprint" ? "Nb sprints" : "Durée (mois)" }}</Label>
+              <Input v-model.number="phase.duration" type="number" min="1" :max="planning.safeTimelineLength" class="h-8 text-sm" />
             </div>
           </div>
 
+          <!-- Color -->
           <div class="flex items-center gap-2">
             <Label class="text-xs shrink-0">Couleur</Label>
             <input v-model="phase.color" type="color" class="h-8 w-full rounded-md border border-input cursor-pointer p-1" />
@@ -82,17 +81,17 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { inject, ref } from "vue";
 import { PlusIcon, ChevronUpIcon, ChevronDownIcon, XIcon } from "lucide-vue-next";
+import { PLANNING_KEY } from "@/composables/usePlanningState";
 import { Button }    from "@/components/ui/button";
 import { Badge }     from "@/components/ui/badge";
 import { Input }     from "@/components/ui/input";
 import { Label }     from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-defineProps({ state: { type: Object, required: true } });
-
-const isOpen = ref(true);
+const planning = inject(PLANNING_KEY);
+const isOpen   = ref(true);
 </script>
 
 <style scoped>
